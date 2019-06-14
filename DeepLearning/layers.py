@@ -19,7 +19,7 @@ class sigmoid_layer:
         x = np.clip(x, -700, 700)                           # clip input to prevent over flow
         self.y = np.array(1.0 / (1.0 + np.exp(-x)));
 
-        return y
+        return self.y
 
     def backward_pass(self, da):
         """ computes the backward pass of the sigmoid layer and returns the gradients for the next upstream layer
@@ -46,7 +46,7 @@ class tanh_layer:
         """
 
         self.y = np.tanh(x)
-        return
+        return self.y
 
     def backward_pass(self, da):
         """ computes the backward pass of the tanh layer and returns the gradients for the next upstream layer
@@ -72,7 +72,7 @@ class relu_layer:
         """
 
         self.x = x
-        return np.maximum(x)
+        return np.maximum(0.0, x)
 
     def backward_pass(self, da):
         """ computes the backward pass of the relu layer and returns the gradients for the next upstream layer
@@ -103,7 +103,7 @@ class linear_layer:
         """
 
         self.shape = x.shape
-        return x * scale                 # multiply local gradient by downstream gradient
+        return x * self.scale                 # multiply local gradient by downstream gradient
 
     def backward_pass(self, da):
         """ Computes the backward pass of the linear layer and returns the gradients for the next upstream layer
@@ -111,8 +111,9 @@ class linear_layer:
         da (numpy array): gradients of the activations passed up from the next downstream layer
         """
 
-        dx = scale * np.ones(self.shape)
+        dx = self.scale * np.ones(self.shape)
         return da * dx
+
 
 
 
