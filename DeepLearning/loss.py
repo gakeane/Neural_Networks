@@ -16,14 +16,10 @@ reference for the derivative of the softmax
 https://deepnotes.io/softmax-crossentropy
 """
 
-import matplotlib
-matplotlib.use('qt4agg')
-
 import numpy as np
-import matplotlib.pyplot as plt
 
 
-def mse_loss(activations, labels, l1=None, l2=None):
+def mse_loss(activations, labels):
     """
     Mean square error, also known as L2 loss, good loss function for regression
     Derivative is linear, unlike MAE which has a constant derivative
@@ -45,7 +41,7 @@ def mse_loss(activations, labels, l1=None, l2=None):
 
 # TODO: Consider what would happen using a loss function which is the magnitude of the error vector
 # TODO: 0.5 * np.mean(np.linalg.norm(labels - activations), axis=1)
-def mae_loss(activations, labels, l1=None, l2=None):
+def mae_loss(activations, labels):
     """
     Mean absolute error, also known as L1 loss, good loss function for regression
     MAE is more robust to ouliers than MSE, i.e will tend to ignore them more
@@ -65,7 +61,7 @@ def mae_loss(activations, labels, l1=None, l2=None):
 
 
 # TODO: It's possible to train delta, to do this we should make this loss function a class
-def huber_loss(activations, labels, delta=10, l1=None, l2=None):
+def huber_loss(activations, labels, delta=10):
     """
     Also called smoothed mean absolute error, quadratic when error is small and linear when error is large
     Tuned with a parameter delta, MAE when delta=0 and MSE when delta=INF
@@ -95,7 +91,7 @@ def huber_loss(activations, labels, delta=10, l1=None, l2=None):
 # NOTE: It's possible to use this implementation of softmax for multiclass labels (i.e. for two lables are correct)
 # NOTE: Shouldn't use softmax for multiclass, keep using cross-entropy and swap softmax for sigmoid
 # FIXME: Comments are misleading now that i've changed this to a multiclass implementation
-def softmax_loss(activations, labels, l1=None, l2=None):
+def softmax_loss(activations, labels):
     """
     The softmax function converts all activations to a value between 0 and 1 and the sum of activations for a sample is 1
     The largest activation will have the highest probability
@@ -127,7 +123,8 @@ def softmax_loss(activations, labels, l1=None, l2=None):
     return loss, da
 
 
-def hinge_loss(activations, labels, l1=None, l2=None):
+# TODO: Finish this function
+def hinge_loss(activations, labels):
     """
     When implementing hinge loss the incorrect class labels need to be minus 1
     The activations also need to output in the range -INF to INF

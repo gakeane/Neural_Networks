@@ -116,7 +116,7 @@ class linear_layer:
 
 
 
-
+# TODO: method that will return the amount of loss due to reqularisation (might want to implement for all layers)
 class fully_connected_layer:
     """ Implements a fully connected layer, assumes flat inputs """
 
@@ -126,8 +126,8 @@ class fully_connected_layer:
 
         num_inputs  (int):   Number of inputs to the layer (each neuron) for each training/test sample
         num_outputs (int):   Number of neurons in the layer (number of outputs)
-        l1:         (int):   Lambda for L1 regularisation (encourages sparse weight matrix)
-        l2:         (int):   Lambda for L2 regularisation (weight decay, encourages small weights)
+        l1:         (float): Lambda for L1 regularisation (encourages sparse weight matrix)
+        l2:         (float): Lambda for L2 regularisation (weight decay, encourages small weights)
         optimiser:  (class): Class implementing
         parameters: (dict):  Dictionary containing the parameters to initalsie the optimiser
         """
@@ -186,6 +186,7 @@ class fully_connected_layer:
         return da * dx
 
 
+# TODO: pass in optimiser so we don't default to SGD
 class batch_normalisation_layer:
     """ Implements a batch normalisation layer
 
