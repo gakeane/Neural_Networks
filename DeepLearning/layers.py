@@ -121,21 +121,28 @@ class fully_connected_layer:
     """ Implements a fully connected layer, assumes flat inputs """
 
     # FIXME: Implement xaiver weight initalisation, use with deep networks
-    def __init__(self, num_inputs, num_outputs, l1=None, l2=None):
+    def __init__(self, num_inputs, num_outputs, optimiser, optimiser_parameters=None, l1=None, l2=None):
         """ initalise the weights and the biases
 
-        num_inputs  (int): Number of inputs to the layer (each neuron) for each training/test sample
-        num_outputs (int): Number of neurons in the layer (number of outputs)
-        l1:         (int): Lambda for L1 regularisation (encourages sparse weight matrix)
-        l2:         (int): Lambda for L2 regularisation (weight decay, encourages small weights)
+        num_inputs  (int):   Number of inputs to the layer (each neuron) for each training/test sample
+        num_outputs (int):   Number of neurons in the layer (number of outputs)
+        l1:         (int):   Lambda for L1 regularisation (encourages sparse weight matrix)
+        l2:         (int):   Lambda for L2 regularisation (weight decay, encourages small weights)
+        optimiser:  (class): Class implementing
+        parameters: (dict):  Dictionary containing the parameters to initalsie the optimiser
         """
 
         # initalise weights and biases
         self.biases = np.zeros((1, num_outputs))                                          # initalise biases to zero
         self.weights = np.random.normal(0.0, 0.01, size=(num_inputs, num_outputs))        # initalise weights to normal distribution with std=0.01
 
+        # initalise regularisation variables
         self.l1 = l1
         self.l2 = l2
+
+        # create optimiser instances for the weights and the biases
+        self.weight_optimiser = optimiser(optimiser_parameters)
+        self.bias_optimiser = optimiser(optimiser_parameters)
 
         # store input for computing backward pass
         self.x = None
@@ -149,7 +156,7 @@ class fully_connected_layer:
         self.x = x
         return np.dot(x, self.weights) + self.biases
 
-    def backward_pass(self, da, learning_rate):
+    def backward_pass(self, da):
         """
         Computes the backward pass of the fully connected layer and returns the gradients for the next upstream layer
         also updates the weights and the biases
@@ -163,12 +170,17 @@ class fully_connected_layer:
         dx = np.dot(da, self.weights.T)
 
         # calculate regularisation terms
-        l1_reg = self.l1 * np.sign(self.weights) if self.l1 else 0.0        # lasso regularisation
-        l2_reg = self.l2 * self.weights if self.l2 else 0.0                 # ridge regularisation / weight decay
+        if self.l1:
+            l1_reg = self.l1 * np.sign(self.weights) if self.l1 else 0.0        # lasso regularisation
+            dw += l1_reg
 
-        # update the weights and biases
-        self.biases -= learning_rate * db
-        self.weights -= learning_rate * (dw + l1_reg + l2_reg)
+        if self.l2:
+            l2_reg = self.l2 * self.weights if self.l2 else 0.0                 # ridge regularisation / weight decay
+            dw += l2_reg
+
+        # update the weights and biases based on direction given by optimser
+        self.biases -= self.bias_optimiser(db)
+        self.weights -= self.weight_optimiser(dw)
 
         # return the gradients to the next upstream layer
         return da * dx
