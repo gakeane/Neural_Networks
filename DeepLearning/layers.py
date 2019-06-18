@@ -164,9 +164,11 @@ class fully_connected_layer:
         da (numpy array): gradients of the activations passed up from the next downstream layer
         """
 
+        N = da.shape[0]                             # divide updates by sample size so they are invariant to sample size
+
         # calculate the local gradients
-        db = np.sum(da, axis=0)
-        dw = np.dot(self.x.T, da)
+        db = (1.0/N) * np.sum(da, axis=0)
+        dw = (1.0/N) * np.dot(self.x.T, da)
         dx = np.dot(da, self.weights.T)
 
         # calculate regularisation terms
@@ -179,11 +181,11 @@ class fully_connected_layer:
             dw += l2_reg
 
         # update the weights and biases based on direction given by optimser
-        self.biases -= self.bias_optimiser(db)
-        self.weights -= self.weight_optimiser(dw)
+        self.biases -= self.bias_optimiser.update(db)
+        self.weights -= self.weight_optimiser.update(dw)
 
         # return the gradients to the next upstream layer
-        return da * dx
+        return dx
 
 
 # TODO: pass in optimiser so we don't default to SGD
@@ -253,8 +255,8 @@ class batch_normalisation_layer:
         da_flat = np.reshape(da, (N, np.product(da.shape[1:])))         # each sample flattened to a single dimension
 
         # calculate the derivatives of gamma and beta
-        dbeta = np.sum(da_flat, axis=0)                                 # sum across N since same beta is applied to all samples
-        dgamma = np.sum(self.x_norm * da_flat, axis=0)                  # sum across N since same gamma is applied to all samples
+        dbeta = (1.0/N) * np.sum(da_flat, axis=0)                                 # sum across N since same beta is applied to all samples
+        dgamma = (1.0/N) * np.sum(self.x_norm * da_flat, axis=0)                  # sum across N since same gamma is applied to all samples
 
         # calculate the normalised data gradients
         dx_norm = self.x_norm * da_flat                                 # don't sum since each x_norm element is used only once
@@ -280,7 +282,7 @@ class batch_normalisation_layer:
         self.beta -= learning_rate * dbeta
         self.gamma -= learning_rate * dgamma
 
-        return da * dx
+        return dx
 
 
 class max_pooling_layer:

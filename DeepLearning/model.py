@@ -10,6 +10,8 @@ Implements a high level model class
 We first create a model and then we add layers to it
 """
 
+import numpy as np
+
 class Model(object):
     """ Class used to represent an entire neural network """
 
@@ -77,7 +79,7 @@ class Model(object):
         loss, _ = self.calculate_loss(activations, labels)
 
         correct = np.sum(np.argmax(activations, axis=1) == np.argmax(labels, axis=1))       # number of correctly classifed samples
-        acc = (correct / data.shape[0]) * 100                                               # accuracy as a precentage
+        acc = (float(correct) / float(data.shape[0])) * 100.0                               # accuracy as a precentage
 
         return loss, acc
 
@@ -99,27 +101,28 @@ class Model(object):
         validation_loss = list()
         validation_acc = list()
 
-        for epoch in epochs
+        for epoch in range(epochs):
 
             # TODO: create the get_batches function
-            batches = get_batches(data, lables, batch_size)
+            batches = get_batches(data, labels, batch_size)
 
             # perform the forward and backward pass for each batch
             for batch_data, batch_labels in batches:
 
-                activations = self.forward_pass(batch)
-                loss, gradients = self.calculate_loss(activations, labels)
+                activations = self.forward_pass(batch_data)
+                loss, gradients = self.calculate_loss(activations, batch_labels)
                 final_gradients = self.backward_pass(gradients)
 
             # calculate the training and validation accuracy after each epoch
             if verbose:
 
-                if not val_data or not val_labels:
+                if val_data is None or val_labels is None:
                     raise ValueError("Can't Evaluate network performance as validation data not provided")
 
                 t_loss, t_accuracy = self.evaluate(data, labels)
                 v_loss, v_accuracy = self.evaluate(val_data, val_labels)
-                print("Epoch %.4i: train_loss: %.4f, train_acc: %.4f %%, val_loss: %.4f, val_acc: %.4f %%")
+                print("Epoch %.4i: train_loss: %.4f, train_acc: %.4f %%, val_loss: %.4f, val_acc: %.4f %%" %
+                      (epoch, t_loss, t_accuracy, v_loss, v_accuracy))
 
                 train_loss.append(t_loss)
                 train_acc.append(t_accuracy)
