@@ -42,6 +42,17 @@ def z_scale(data, per_channel=False):
 # WEIGHT INITALISTAION FUNCTIONS
 # ===================
 
+def guassian_initalisation(num_inputs, num_output, relus=False):
+    """ Generates a weight matrix initalised from a normal distribution with mean 0 and std 0.01
+
+    num_inputs  (int):     Number of inputs to the layer
+    num_outputs (int):     Number of outputs from the layer
+    relus:      (boolean): Has no affect, just included for completness
+    """
+
+    return np.random.normal(0, 0.01, size=(num_inputs, num_outputs))
+
+
 def xavier_initalisation(num_inputs, num_outputs, relus=False):
     """ Generates weight matrix using xavier initalisation
     Xavier initalisation aims to create a weights matrix with a variance of 1
