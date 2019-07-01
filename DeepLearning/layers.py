@@ -30,6 +30,11 @@ class sigmoid_layer:
         dx = self.y * (1 - self.y)
         return da * dx                   # multiply local gradient by downstream gradient
 
+    def get_regularisation(self):
+        """ Sigmoid layer has no weights so regularisation is zero """
+
+        return 0.0
+
 
 class tanh_layer:
     """ Implements a tanh layer (prone to saturation) """
@@ -57,6 +62,11 @@ class tanh_layer:
         dx = 1 - (self.y ** 2)
         return da * dx                       # multiply local gradient by downstream gradient
 
+    def get_regularisation(self):
+        """ tanh layer has no weights so regularisation is zero """
+
+        return 0.0
+
 class relu_layer:
     """ Implements a rectified linear unit layer (dead for negative inputs) """
 
@@ -82,6 +92,11 @@ class relu_layer:
 
         dx = (self.x > 0).astype(self.x.dtype)
         return da * dx
+
+    def get_regularisation(self):
+        """ ReLu layer has no weights so regularisation is zero """
+
+        return 0.0
 
 
 class linear_layer:
@@ -114,6 +129,11 @@ class linear_layer:
         dx = self.scale * np.ones(self.shape)
         return da * dx
 
+    def get_regularisation(self):
+        """ Linear layer has no weights so regularisation is zero """
+
+        return 0.0
+
 
 
 # TODO: method that will return the amount of loss due to reqularisation (might want to implement for all layers)
@@ -121,20 +141,21 @@ class fully_connected_layer:
     """ Implements a fully connected layer, assumes flat inputs """
 
     # FIXME: Implement xaiver weight initalisation, use with deep networks
-    def __init__(self, num_inputs, num_outputs, optimiser, optimiser_parameters=None, l1=None, l2=None):
+    def __init__(self, num_inputs, num_outputs, optimiser, optimiser_parameters=None, weight_initaliser=None, l1=None, l2=None):
         """ initalise the weights and the biases
 
-        num_inputs  (int):   Number of inputs to the layer (each neuron) for each training/test sample
-        num_outputs (int):   Number of neurons in the layer (number of outputs)
-        l1:         (float): Lambda for L1 regularisation (encourages sparse weight matrix)
-        l2:         (float): Lambda for L2 regularisation (weight decay, encourages small weights)
-        optimiser:  (class): Class implemention
-        parameters: (dict):  Dictionary containing the parameters to initalsie the optimiser
+        num_inputs        (int):   Number of inputs to the layer (each neuron) for each training/test sample
+        num_outputs       (int):   Number of neurons in the layer (number of outputs)
+        l1:               (float): Lambda for L1 regularisation (encourages sparse weight matrix)
+        l2:               (float): Lambda for L2 regularisation (weight decay, encourages small weights)
+        optimiser:        (class): Class implemention
+        parameters:       (dict):  Dictionary containing the parameters to initalsie the optimiser
+        weight_initaliser (func):  Function used to initalise weights for the layer, default is xavier_initalisation
         """
 
         # initalise weights and biases
         self.biases = np.zeros((1, num_outputs))                                          # initalise biases to zero
-        self.weights = np.random.normal(0.0, 0.01, size=(num_inputs, num_outputs))        # initalise weights to normal distribution with std=0.01
+        self.weights = weight_initaliser(num_inputs, num_outputs)                         # initalise weights using weight initalisation function
 
         # initalise regularisation variables
         self.l1 = l1
@@ -186,6 +207,14 @@ class fully_connected_layer:
 
         # return the gradients to the next upstream layer
         return dx
+
+    def get_regularisation(self):
+        """ Returns the amount of loss due to L1 and L2 regularistion for the fully connected layer """
+
+        l1 = self.l1 * np.sum(np.abs(self.weights)) if self.l1 else 0.0
+        l2 = (self.l2 * 0.5) * np.sum(np.power(self.weights, 2)) if self.l2 else 0.0
+
+        return l1 + l2
 
 
 # TODO: pass in optimiser so we don't default to SGD

@@ -61,8 +61,10 @@ class Model(object):
         labels      (numpy array): The correct labels for the output of the final layer (should be one hot encoded)
         """
 
-        # add code here for calculating the regularisation term
-        regularisation = 0
+        # get the regularisation for each layer in the model
+        regularisation = 0.0
+        for layer in self.layers:
+            regularisation += layer.get_regularisation()
 
         loss, gradients = self.loss_function(activations, labels)
         return loss + regularisation, gradients
