@@ -47,8 +47,8 @@ def reshape_data(data, number_samples, number_classes, flatten_data):
 
     # vectorise the input data
     if flatten_data:
-        trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1] * trainX.shape[2]))
-        testX = np.reshape(testX, (testX.shape[0], testX.shape[1] * testX.shape[2]))
+        trainX = np.reshape(trainX, (trainX.shape[0], np.product(trainX.shape[1:])))
+        testX = np.reshape(testX, (testX.shape[0], np.product(testX.shape[1:])))
 
     # vectorise the input output data
     testY = vectorise_labels(testY, number_classes)

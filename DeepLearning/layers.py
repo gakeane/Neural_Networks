@@ -128,7 +128,7 @@ class fully_connected_layer:
         num_outputs (int):   Number of neurons in the layer (number of outputs)
         l1:         (float): Lambda for L1 regularisation (encourages sparse weight matrix)
         l2:         (float): Lambda for L2 regularisation (weight decay, encourages small weights)
-        optimiser:  (class): Class implementing
+        optimiser:  (class): Class implemention
         parameters: (dict):  Dictionary containing the parameters to initalsie the optimiser
         """
 

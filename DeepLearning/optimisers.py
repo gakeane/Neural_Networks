@@ -4,6 +4,8 @@ learning parameters (i.e. weights and biases)
 
 """
 
+import numpy as np
+
 
 class SGD(object):
     """ Vanilla stochastic gradient descent
@@ -65,7 +67,7 @@ class SGDWithMomentum(object):
         gradients     (numpy array): The gradients of the parameters to be updated
         """
 
-        self.velocity = rho * self.velocity + gradients
+        self.velocity = self.rho * self.velocity + gradients
         return self.learning_rate * self.velocity
 
 
@@ -101,7 +103,7 @@ class RMSProp(object):
         gradients     (numpy array): The gradients of the parameters to be updated
         """
 
-        self.gradient_sum = self.delta * self.gradient_sum + ((1 - delta) * np.square(gradients))
+        self.gradient_sum = self.delta * self.gradient_sum + ((1 - self.delta) * np.square(gradients))
         return (self.learning_rate * gradients) / (np.sqrt(self.gradient_sum) + 1e-7)
 
 
@@ -147,8 +149,8 @@ class Adam(object):
 
         # divide by a very small number so that the second moment will be large, this will prevent
         # the step size for the first few itterations from being to big
-        unbiased_first = first_moment / (1 - np.power(self.beta1, self.t))
-        unbiased_second = first_moment / (1 - np.power(self.beta1, self.t))
+        unbiased_first = self.first_moment / (1 - np.power(self.beta1, self.t))
+        unbiased_second = self.second_moment / (1 - np.power(self.beta2, self.t))
 
         # increasee the itteration counter
         self.t += 1
